@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CheckersBoardLogic : MonoBehaviour
 {
@@ -8,16 +9,30 @@ public class CheckersBoardLogic : MonoBehaviour
     public Piece[,] pieces = new Piece[8, 8];
     public GameObject whitePiecePrefab;
     public GameObject blackPiecePrefab;
+    public bool forceJump;
+    public bool isWhite;
+    public GameObject whiteTeamScoreTxt;
+    public GameObject blackTeamScoreTxt;
+    public GameObject whiteNot;
+    public GameObject blackNot;
+
+    public int whiteScore;
+    public int blackScore;
+
+  
     private Vector3 boardOffset = new Vector3(-4.0f, 0.29f, -4.0f);
     private Vector3 pieceOffset = new Vector3(0.5f, 0, 0.5f);
+
     private Piece selectedPiece;
     private List<Piece> forcedPieces;
+
     private Vector2 mouseOver;
     private Vector2 startDrag;
     private Vector2 endDrag;
-    public bool isWhite;
+
     private bool isWhiteTurn;
     private bool hasKilled;
+
     private void updateMouseOver()
     {
         // If its my turn
@@ -68,12 +83,12 @@ public class CheckersBoardLogic : MonoBehaviour
             {
                 selectedPiece = p;
                 startDrag = mouseOver;
-                //Debug.Log(selectedPiece.name);
+                Debug.Log(selectedPiece.name);
             }
             else
             {
-                // Look for the piece under our forced pieces list
-                if(forcedPieces.Find(fp => fp == p) == null)
+                // Look for the piece under our forced pieces list only if forceJump is true
+                if( forceJump?(forcedPieces.Find(fp => fp == p) == null):false)
                     return;
 
                 selectedPiece = p;
@@ -125,11 +140,25 @@ public class CheckersBoardLogic : MonoBehaviour
                         pieces[(x1 + x2)/2, (y1+y2)/2] = null;
                         Destroy(p.gameObject);
                         hasKilled = true;
+                        // Add one to the score
+                        if(isWhiteTurn)
+                        {
+                            whiteScore++;
+                            whiteTeamScoreTxt.GetComponent<TextMesh>().text = whiteScore.ToString();
+                            //whiteTeamScoreTxt.GetComponent("Text") = whiteScore.ToString;
+                            //whiteTeamScoreTxt.GetComponent() = whiteScore.ToString;
+                        }
+                        else
+                        {
+                            blackScore++;
+                            blackTeamScoreTxt.GetComponent<TextMesh>().text = blackScore.ToString();
+                        }
+
                     }
                 }
 
                 // Were were supposted to kill anything?
-                if(forcedPieces.Count != 0 && !hasKilled)
+                if(forcedPieces.Count != 0 && !hasKilled && forceJump)
                 {
                     MovePiece(selectedPiece, x1, y1);
                     startDrag = Vector2.zero;
@@ -179,6 +208,17 @@ public class CheckersBoardLogic : MonoBehaviour
             return;
 
         isWhiteTurn = !isWhiteTurn;
+        //update not
+        if(isWhiteTurn)
+        {
+            whiteNot.GetComponent<TextMesh>().text = "!";
+            blackNot.GetComponent<TextMesh>().text = "";
+        }else
+        {
+            whiteNot.GetComponent<TextMesh>().text = "";
+            blackNot.GetComponent<TextMesh>().text = "!";
+        }
+
         isWhite = !isWhite;
         hasKilled = false;
         CheckVictory();
@@ -268,22 +308,28 @@ public class CheckersBoardLogic : MonoBehaviour
     {
         p.transform.position = (Vector3.right * x) + (Vector3.forward * y) + boardOffset + pieceOffset;
     }
-    // Start is called before the first frame update
     void Start()
     {
+        isWhite = true;
         isWhiteTurn = true;
+        whiteNot.GetComponent<TextMesh>().text = "!";
         forcedPieces = new List<Piece>();
+
+        whiteScore = 0;
+        blackScore = 0;
+
         GenerateBoard();
     }
-    // Update is called once per frame
     void Update()
     {
+
+        // Debug.Log(Input.mousePosition);
         updateMouseOver();
 
         //Debug.Log(mouseOver);
 
         // If it my turn
-        if((isWhite)?isWhiteTurn:!isWhiteTurn)
+        if((isWhite) ?isWhiteTurn:!isWhiteTurn)
         {
             int x = (int)mouseOver.x;
             int y = (int)mouseOver.y;
@@ -291,8 +337,12 @@ public class CheckersBoardLogic : MonoBehaviour
             if(selectedPiece != null)
                 UpdatePieceDrag(selectedPiece);
 
-            if(Input.GetMouseButtonDown(0))
-                SelectPiece(x,y);
+            if (Input.GetMouseButtonDown(0))
+            {
+                SelectPiece(x, y);
+                Debug.Log("Mouse Down.");
+            }
+
 
             if(Input.GetMouseButtonUp(0))
                 TryMove((int)startDrag.x, (int)startDrag.y, x, y);
