@@ -29,7 +29,7 @@ public class Client : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.Log("Socket error" = e.Message);
+            Debug.Log("Socket error" + e.Message);
         }
 
         return socketReady;
