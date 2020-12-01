@@ -7,25 +7,40 @@ using System;
 
 public class Client : MonoBehaviour
 {
+    public string clientName;
     private bool socketReady;
     private TcpClient socket;
     private NetworkStream stream;
     private StreamWriter writer;
     private StreamReader reader;
 
+    private void Start()
+    {
+        DontDestroyOnLoad(gameObject);
+    }
     public bool ConnectToServer(string host, int port)
     {
-        if (socketReady)
-            return false;
 
+        bool debugV = true;
+
+        if(debugV)
+            Debug.Log("Starting connection...");
+
+        if (socketReady)
+        {
+            if(debugV)
+                Debug.Log("WARNING: SOCKET NOT READY. ENDING CONNECTION ATTEMPT.");
+            return false;
+        }
         try
         {
             socket = new TcpClient(host, port);
             stream = socket.GetStream();
             writer = new StreamWriter(stream);
             reader = new StreamReader(stream);
-
             socketReady = true;
+            if(debugV)
+                Debug.Log("SOCKET READY.");
         }
         catch (Exception e)
         {

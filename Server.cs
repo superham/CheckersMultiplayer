@@ -8,25 +8,29 @@ using System.IO;
 
 public class Server : MonoBehaviour
 {
-    public int port = 6321;
+    public int port = 6312;
 
     private List<ServerClient> clients;
-    private List<ServerClient> disconnectList;
+    private List<ServerClient> disconnectList; // Cycled through when disconnecting clients
 
-    private TcpListener server;
-    private bool serverStarted;
+    private TcpListener server; // The actual server
+    private bool serverStarted; // Have we started the server?
 
     public void init()
     {
-        DontDestroyOnLoad(gameObject);
+        DontDestroyOnLoad(gameObject); // Don't destory it if we are just changing scenes E.g. Menu > Game
+        clients = new List<ServerClient>();
         disconnectList = new List<ServerClient>();
 
         try
         {
+            //Debug.Log("New TCP Listener on " + IPAddress.Any + " " + port);
             server = new TcpListener(IPAddress.Any, port);
             server.Start();
-
+            //Debug.Log("LISTENING");
             startListening();
+            serverStarted=true; //try moving to other startListening();
+            
         }
         catch (Exception e)
         {
@@ -39,6 +43,7 @@ public class Server : MonoBehaviour
         if(!serverStarted)
             return;
 
+        //Debug.Log(clients);
         foreach(ServerClient c in clients)
         {
             // Is the client still connected?
@@ -61,7 +66,7 @@ public class Server : MonoBehaviour
                 }
             }
         }
-
+        
         for(int i = 0; i < disconnectList.Count - 1; i++)
         {
             // Tell our player somebody has disconnected
@@ -76,11 +81,11 @@ public class Server : MonoBehaviour
     private void AcceptTcpClient(IAsyncResult ar)
     {
         TcpListener listener = (TcpListener)ar.AsyncState;
-
         ServerClient sc = new ServerClient(listener.EndAcceptTcpClient(ar));
         clients.Add(sc);
 
         startListening();
+        
 
         Debug.Log("Somebody has connected.");
     }

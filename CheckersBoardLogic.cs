@@ -144,14 +144,14 @@ public class CheckersBoardLogic : MonoBehaviour
                         if(isWhiteTurn)
                         {
                             whiteScore++;
-                            whiteTeamScoreTxt.GetComponent<TextMesh>().text = whiteScore.ToString();
+                            whiteTeamScoreTxt.GetComponent<Text>().text = whiteScore.ToString();
                             //whiteTeamScoreTxt.GetComponent("Text") = whiteScore.ToString;
                             //whiteTeamScoreTxt.GetComponent() = whiteScore.ToString;
                         }
                         else
                         {
                             blackScore++;
-                            blackTeamScoreTxt.GetComponent<TextMesh>().text = blackScore.ToString();
+                            blackTeamScoreTxt.GetComponent<Text>().text = blackScore.ToString();
                         }
 
                     }
@@ -211,12 +211,12 @@ public class CheckersBoardLogic : MonoBehaviour
         //update not
         if(isWhiteTurn)
         {
-            whiteNot.GetComponent<TextMesh>().text = "!";
-            blackNot.GetComponent<TextMesh>().text = "";
+            whiteNot.GetComponent<Text>().text = "!";
+            blackNot.GetComponent<Text>().text = "";
         }else
         {
-            whiteNot.GetComponent<TextMesh>().text = "";
-            blackNot.GetComponent<TextMesh>().text = "!";
+            whiteNot.GetComponent<Text>().text = "";
+            blackNot.GetComponent<Text>().text = "!";
         }
 
         isWhite = !isWhite;
@@ -312,7 +312,7 @@ public class CheckersBoardLogic : MonoBehaviour
     {
         isWhite = true;
         isWhiteTurn = true;
-        whiteNot.GetComponent<TextMesh>().text = "!";
+        whiteNot.GetComponent<Text>().text = "!";
         forcedPieces = new List<Piece>();
 
         whiteScore = 0;
